@@ -1,0 +1,92 @@
+import { ref } from "vue";
+import type { Cell, CellAliveState, CellState } from "@/types/Cell";
+import type { Playfield } from "@/types/Playfield";
+
+export function usePlayfield() {
+  const playfield = ref<Playfield>([]);
+  const aliveStates: readonly CellAliveState[] = ["alive", "water"];
+  const width = ref(10);
+  const height = ref(10);
+  const generation = ref(0);
+
+  function createPlayfield() {
+    const newPlayfield: Playfield = [];
+    for (let x = 0; x < width.value; x++) {
+      for (let y = 0; y < height.value; y++) {
+        const newCell: Cell = {
+          x,
+          y,
+          state: "empty",
+        };
+        newPlayfield.push(newCell);
+      }
+    }
+    playfield.value = newPlayfield;
+  }
+
+  function getCellNeighbors(currentCell: Cell) {
+    const neighbors: Cell[] = [];
+
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (i === 0 && j === 0) continue;
+        const neighbor = playfield.value.find(
+          (cell) => cell.x === currentCell.x + i && cell.y === currentCell.y + j
+        );
+        if (neighbor) {
+          neighbors.push(neighbor);
+        }
+      }
+    }
+
+    return neighbors;
+  }
+
+  function isAliveState(state: CellState): state is CellAliveState {
+    return aliveStates.includes(state as CellAliveState);
+  }
+
+  function getNewCellState(currentCell: Cell, neighbors: Cell[]) {
+    const aliveNeighbors = neighbors.filter((neighbor) =>
+      isAliveState(neighbor.state)
+    ).length;
+
+    switch (currentCell.state) {
+      case "alive":
+        return aliveNeighbors >= 2 && aliveNeighbors <= 3 ? "alive" : "empty";
+      case "desert":
+        return "desert";
+      case "water":
+        return "water";
+      case "empty":
+      default:
+        return aliveNeighbors === 3 ? "alive" : "empty";
+    }
+  }
+
+  function nextGeneration() {
+    const newPlayfield: Playfield = [];
+    for (let x = 0; x < width.value; x++) {
+      for (let y = 0; y < height.value; y++) {
+        const currentCell = playfield.value.find(
+          (cell) => cell.x === x && cell.y === y
+        );
+        if (!currentCell) continue;
+        const neighbors = getCellNeighbors(currentCell);
+        const newCellState = getNewCellState(currentCell, neighbors);
+        newPlayfield.push({ ...currentCell, state: newCellState });
+      }
+    }
+    playfield.value = newPlayfield;
+    generation.value++;
+  }
+
+  return {
+    playfield,
+    width,
+    height,
+    generation,
+    createPlayfield,
+    nextGeneration,
+  };
+}

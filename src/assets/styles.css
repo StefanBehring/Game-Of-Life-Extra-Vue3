@@ -1,0 +1,35 @@
+/* Globale Styles für Game of Life */
+
+:root {
+  --color-bg: #020617;
+  --color-grid: #0f172a;
+
+  --color-font: #f1f5f9;
+
+  --cell-empty: #02081a;
+  --cell-alive: #22c55e;
+  --cell-water: #0ea5e9;
+  --cell-desert: #eab308;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-bg);
+}
