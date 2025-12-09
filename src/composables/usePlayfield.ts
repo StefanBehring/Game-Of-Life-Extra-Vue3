@@ -120,8 +120,8 @@ export function usePlayfield() {
     const clampedH = Math.max(boundaries.min, Math.min(newH, boundaries.max));
     const clampedW = Math.max(boundaries.min, Math.min(newW, boundaries.max));
 
-    const changedH = clampedH !== oldH;
-    const changedW = clampedW !== oldW;
+    const changedH = clampedH !== newH;
+    const changedW = clampedW !== newW;
 
     if (changedH) height.value = clampedH;
     if (changedW) width.value = clampedW;
