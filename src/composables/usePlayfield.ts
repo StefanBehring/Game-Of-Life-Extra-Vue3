@@ -84,7 +84,11 @@ export function usePlayfield() {
 
     switch (currentCell.state) {
       case "alive":
-        return aliveNeighbors >= 2 && aliveNeighbors <= 3 ? "alive" : "empty";
+        return aliveNeighbors >= 2 && aliveNeighbors <= 3
+          ? "alive"
+          : aliveNeighbors === 8
+          ? "water"
+          : "empty";
       case "desert":
         return "desert";
       case "water":
@@ -113,6 +117,11 @@ export function usePlayfield() {
   }
 
   function resetPlayfield() {
+    if (intervalId.value) {
+      clearInterval(intervalId.value);
+      intervalId.value = null;
+      isAutoRunning.value = false;
+    }
     generation.value = 0;
     createPlayfield();
   }
