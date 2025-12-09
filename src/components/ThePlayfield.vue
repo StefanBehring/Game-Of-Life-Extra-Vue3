@@ -153,7 +153,7 @@ onMounted(() => {
   display: flex;
   gap: 1rem;
 }
-.button-reset {
+.buttons button {
   font-size: 1.1rem;
   font-weight: 500;
   color: var(--color-font);
@@ -162,25 +162,7 @@ onMounted(() => {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
 }
-.button-next {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--color-font);
-  background-color: var(--color-grid);
-  border: 1px solid var(--color-bg);
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-}
-.button-auto-run {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--color-font);
-  background-color: var(--color-grid);
-  border: 1px solid var(--color-bg);
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-}
-button:hover {
+.buttons button:hover {
   cursor: pointer;
 }
 </style>
