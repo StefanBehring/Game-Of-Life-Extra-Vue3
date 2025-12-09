@@ -101,8 +101,7 @@ export function usePlayfield() {
     createPlayfield();
   }
 
-  watch(width, resetPlayfield);
-  watch(height, resetPlayfield);
+  watch([height, width], resetPlayfield);
 
   onUnmounted(() => {
     if (intervalId.value) {
