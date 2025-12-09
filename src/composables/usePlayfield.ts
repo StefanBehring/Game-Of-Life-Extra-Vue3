@@ -24,7 +24,7 @@ export function usePlayfield() {
   }
 
   function createPlayfield() {
-    const newPlayfield: Playfield = [];
+    const newPlayfield: Playfield = new Array(width.value * height.value);
     for (let x = 0; x < width.value; x++) {
       for (let y = 0; y < height.value; y++) {
         const newCell: Cell = {
@@ -32,21 +32,22 @@ export function usePlayfield() {
           y,
           state: "empty",
         };
-        newPlayfield.push(newCell);
+        newPlayfield[getIndex(x, y)] = newCell;
       }
     }
     playfield.value = newPlayfield;
   }
 
   function getCellNeighbors(currentCell: Cell) {
+    const x = currentCell.x;
+    const y = currentCell.y;
+
     const neighbors: Cell[] = [];
 
     for (let i = -1; i <= 1; i++) {
       for (let j = -1; j <= 1; j++) {
         if (i === 0 && j === 0) continue;
-        const neighbor = playfield.value.find(
-          (cell) => cell.x === currentCell.x + i && cell.y === currentCell.y + j
-        );
+        const neighbor = playfield.value[getIndex(x + i, y + j)];
         if (neighbor) {
           neighbors.push(neighbor);
         }
@@ -54,6 +55,10 @@ export function usePlayfield() {
     }
 
     return neighbors;
+  }
+
+  function getIndex(x: number, y: number) {
+    return y * width.value + x;
   }
 
   function isAliveState(state: CellState): state is CellAliveState {
@@ -88,7 +93,7 @@ export function usePlayfield() {
         if (!currentCell) continue;
         const neighbors = getCellNeighbors(currentCell);
         const newCellState = getNewCellState(currentCell, neighbors);
-        newPlayfield.push({ ...currentCell, state: newCellState });
+        newPlayfield[getIndex(x, y)] = { ...currentCell, state: newCellState };
       }
     }
     playfield.value = newPlayfield;
