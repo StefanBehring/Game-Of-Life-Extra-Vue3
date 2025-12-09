@@ -7,6 +7,7 @@ export function usePlayfield() {
     min: 1,
     max: 20,
   };
+  const autoRunInterval = 500;
 
   const isAutoRunning = ref(false);
   const playfield = ref<Playfield>([]);
@@ -16,6 +17,9 @@ export function usePlayfield() {
   const generation = ref(0);
   const intervalId = ref<ReturnType<typeof setInterval> | null>(null);
 
+  /**
+   * Starts or stops the automatic generation of the next generation.
+   */
   function autoRun() {
     if (intervalId.value) {
       clearInterval(intervalId.value);
@@ -24,11 +28,14 @@ export function usePlayfield() {
     } else {
       intervalId.value = setInterval(() => {
         nextGeneration();
-      }, 500);
+      }, autoRunInterval);
       isAutoRunning.value = true;
     }
   }
 
+  /**
+   * Creates a new playfield with the current width and height.
+   */
   function createPlayfield() {
     const newPlayfield: Playfield = new Array(width.value * height.value);
     for (let x = 0; x < width.value; x++) {
@@ -45,6 +52,11 @@ export function usePlayfield() {
     playfield.value = newPlayfield;
   }
 
+  /**
+   * Returns the neighbors of a cell.
+   * @param currentCell - The current cell.
+   * @returns The neighbors of the cell which are not out of bounds.
+   */
   function getCellNeighbors(currentCell: Cell) {
     const x = currentCell.x;
     const y = currentCell.y;
@@ -66,6 +78,12 @@ export function usePlayfield() {
     return neighbors;
   }
 
+  /**
+   * Returns the index of a cell in the playfield or null if the cell is out of bounds.
+   * @param x - The x coordinate of the cell.
+   * @param y - The y coordinate of the cell.
+   * @returns The index of the cell in the playfield or null if the cell is out of bounds.
+   */
   function getIndex(x: number, y: number) {
     if (x < 0 || x >= width.value || y < 0 || y >= height.value) {
       return null;
@@ -73,10 +91,21 @@ export function usePlayfield() {
     return y * width.value + x;
   }
 
+  /**
+   * Checks if a cell state is an alive state.
+   * @param state - The state of the cell.
+   * @returns True if the state is an alive state, false otherwise.
+   */
   function isAliveState(state: CellState): state is CellAliveState {
     return aliveStates.includes(state as CellAliveState);
   }
 
+  /**
+   * Returns the new state of a cell.
+   * @param currentCell - The current cell.
+   * @param neighbors - The neighbors of the cell.
+   * @returns The new state of the cell.
+   */
   function getNewCellState(currentCell: Cell, neighbors: Cell[]) {
     const aliveNeighbors = neighbors.filter((neighbor) =>
       isAliveState(neighbor.state)
@@ -99,6 +128,9 @@ export function usePlayfield() {
     }
   }
 
+  /**
+   * Generates the next generation of the playfield.
+   */
   function nextGeneration() {
     const newPlayfield: Playfield = new Array(width.value * height.value);
     for (let x = 0; x < width.value; x++) {
@@ -116,6 +148,9 @@ export function usePlayfield() {
     generation.value++;
   }
 
+  /**
+   * Resets the playfield to the initial state.
+   */
   function resetPlayfield() {
     if (intervalId.value) {
       clearInterval(intervalId.value);
@@ -126,7 +161,7 @@ export function usePlayfield() {
     createPlayfield();
   }
 
-  watch([height, width], ([newH, newW], [oldH, oldW]) => {
+  watch([height, width], ([newH, newW]) => {
     const clampedH = Math.max(boundaries.min, Math.min(newH, boundaries.max));
     const clampedW = Math.max(boundaries.min, Math.min(newW, boundaries.max));
 
