@@ -1,13 +1,27 @@
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import type { Cell, CellAliveState, CellState } from "@/types/Cell";
 import type { Playfield } from "@/types/Playfield";
 
 export function usePlayfield() {
+  const isAutoRunning = ref(false);
   const playfield = ref<Playfield>([]);
   const aliveStates: readonly CellAliveState[] = ["alive", "water"];
   const width = ref(10);
   const height = ref(10);
   const generation = ref(0);
+  const intervalId = ref<number | null>(null);
+
+  function autoRun() {
+    isAutoRunning.value = !isAutoRunning.value;
+    if (isAutoRunning.value && !intervalId.value) {
+      intervalId.value = setInterval(() => {
+        nextGeneration();
+      }, 1000);
+    } else if (intervalId.value) {
+      clearInterval(intervalId.value);
+      intervalId.value = null;
+    }
+  }
 
   function createPlayfield() {
     const newPlayfield: Playfield = [];
@@ -81,12 +95,24 @@ export function usePlayfield() {
     generation.value++;
   }
 
+  function resetPlayfield() {
+    playfield.value = [];
+    generation.value = 0;
+    createPlayfield();
+  }
+
+  watch(width, resetPlayfield);
+  watch(height, resetPlayfield);
+
   return {
+    isAutoRunning,
     playfield,
     width,
     height,
     generation,
+    autoRun,
     createPlayfield,
     nextGeneration,
+    resetPlayfield,
   };
 }

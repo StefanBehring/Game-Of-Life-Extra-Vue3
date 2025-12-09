@@ -15,8 +15,29 @@
       <button class="desert" @click="selectedType = 'desert'">Desert</button>
     </div>
 
+    <div class="settings">
+      <div class="settings-item">
+        <label for="width">Width</label>
+        <input type="number" id="width" v-model="width" />
+      </div>
+      <div class="settings-item">
+        <label for="height">Height</label>
+        <input type="number" id="height" v-model="height" />
+      </div>
+    </div>
+
     <div class="generation">Generation: {{ generation }}</div>
-    <button class="button-next" @click="nextGeneration">Next Generation</button>
+    <div class="buttons">
+      <button class="button-reset" @click="resetPlayfield">
+        Reset Playfield
+      </button>
+      <button class="button-next" @click="nextGeneration">
+        Next Generation
+      </button>
+      <button class="button-auto-run" @click="autoRun">
+        {{ isAutoRunning ? "Stop Auto Run" : "Start Auto Run" }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -27,12 +48,15 @@ import TheCell from "./TheCell.vue";
 import type { CellState } from "@/types/Cell";
 
 const {
+  isAutoRunning,
   playfield,
   width,
   height,
   generation,
   createPlayfield,
   nextGeneration,
+  autoRun,
+  resetPlayfield,
 } = usePlayfield();
 
 const selectedType = ref<CellState>("empty");
@@ -94,6 +118,49 @@ onMounted(() => {
 .desert {
   background-color: var(--cell-desert);
 }
+.settings {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.settings-item {
+  display: flex;
+  flex-direction: column;
+}
+.settings-item label {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--color-font);
+  margin-bottom: 0.5rem;
+}
+.settings-item input {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--color-font);
+  background-color: var(--color-grid);
+  border: 1px solid var(--color-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+.generation {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--color-font);
+  margin: 1rem 0;
+}
+.buttons {
+  display: flex;
+  gap: 1rem;
+}
+.button-reset {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--color-font);
+  background-color: var(--color-grid);
+  border: 1px solid var(--color-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
 .button-next {
   font-size: 1.1rem;
   font-weight: 500;
@@ -102,5 +169,17 @@ onMounted(() => {
   border: 1px solid var(--color-bg);
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
+}
+.button-auto-run {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--color-font);
+  background-color: var(--color-grid);
+  border: 1px solid var(--color-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+button:hover {
+  cursor: pointer;
 }
 </style>
