@@ -1,4 +1,4 @@
-import { ref, watch } from "vue";
+import { ref, watch, onUnmounted } from "vue";
 import type { Cell, CellAliveState, CellState } from "@/types/Cell";
 import type { Playfield } from "@/types/Playfield";
 
@@ -103,6 +103,12 @@ export function usePlayfield() {
 
   watch(width, resetPlayfield);
   watch(height, resetPlayfield);
+
+  onUnmounted(() => {
+    if (intervalId.value) {
+      clearInterval(intervalId.value);
+    }
+  });
 
   return {
     isAutoRunning,
