@@ -14,7 +14,7 @@ export function usePlayfield() {
   const width = ref(10);
   const height = ref(10);
   const generation = ref(0);
-  const intervalId = ref<number | null>(null);
+  const intervalId = ref<ReturnType<typeof setInterval> | null>(null);
 
   function autoRun() {
     isAutoRunning.value = !isAutoRunning.value;
@@ -114,23 +114,25 @@ export function usePlayfield() {
   }
 
   function resetPlayfield() {
-    playfield.value = [];
     generation.value = 0;
     createPlayfield();
   }
 
   watch(
     [height, width],
-    () => {
-      height.value = Math.max(
-        boundaries.min,
-        Math.min(height.value, boundaries.max)
-      );
-      width.value = Math.max(
-        boundaries.min,
-        Math.min(width.value, boundaries.max)
-      );
-      resetPlayfield();
+    ([newH, newW], [oldH, oldW]) => {
+      const clampedH = Math.max(boundaries.min, Math.min(newH, boundaries.max));
+      const clampedW = Math.max(boundaries.min, Math.min(newW, boundaries.max));
+
+      const changedH = clampedH !== oldH;
+      const changedW = clampedW !== oldW;
+
+      if (changedH) height.value = clampedH;
+      if (changedW) width.value = clampedW;
+
+      if (changedH || changedW) {
+        resetPlayfield();
+      }
     },
     { immediate: true }
   );
@@ -138,6 +140,7 @@ export function usePlayfield() {
   onUnmounted(() => {
     if (intervalId.value) {
       clearInterval(intervalId.value);
+      intervalId.value = null;
     }
   });
 
