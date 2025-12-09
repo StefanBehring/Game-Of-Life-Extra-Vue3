@@ -18,13 +18,13 @@ export function usePlayfield() {
 
   function autoRun() {
     isAutoRunning.value = !isAutoRunning.value;
-    if (isAutoRunning.value && !intervalId.value) {
+    if (intervalId.value) {
+      clearInterval(intervalId.value);
+      intervalId.value = null;
+    } else if (isAutoRunning.value && !intervalId.value) {
       intervalId.value = setInterval(() => {
         nextGeneration();
       }, 1000);
-    } else if (intervalId.value) {
-      clearInterval(intervalId.value);
-      intervalId.value = null;
     }
   }
 
@@ -38,9 +38,7 @@ export function usePlayfield() {
           state: "empty",
         };
         const index = getIndex(x, y);
-        if (index !== null) {
-          newPlayfield[index] = newCell;
-        }
+        newPlayfield[index!] = newCell;
       }
     }
     playfield.value = newPlayfield;
@@ -118,24 +116,20 @@ export function usePlayfield() {
     createPlayfield();
   }
 
-  watch(
-    [height, width],
-    ([newH, newW], [oldH, oldW]) => {
-      const clampedH = Math.max(boundaries.min, Math.min(newH, boundaries.max));
-      const clampedW = Math.max(boundaries.min, Math.min(newW, boundaries.max));
+  watch([height, width], ([newH, newW], [oldH, oldW]) => {
+    const clampedH = Math.max(boundaries.min, Math.min(newH, boundaries.max));
+    const clampedW = Math.max(boundaries.min, Math.min(newW, boundaries.max));
 
-      const changedH = clampedH !== oldH;
-      const changedW = clampedW !== oldW;
+    const changedH = clampedH !== oldH;
+    const changedW = clampedW !== oldW;
 
-      if (changedH) height.value = clampedH;
-      if (changedW) width.value = clampedW;
+    if (changedH) height.value = clampedH;
+    if (changedW) width.value = clampedW;
 
-      if (changedH || changedW) {
-        resetPlayfield();
-      }
-    },
-    { immediate: true }
-  );
+    if (changedH || changedW) {
+      resetPlayfield();
+    }
+  });
 
   onUnmounted(() => {
     if (intervalId.value) {

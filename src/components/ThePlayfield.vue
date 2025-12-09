@@ -67,7 +67,7 @@ function changeCellState(xPos: number, yPos: number) {
   if (index === null) return;
   const cell = playfield.value[index];
   if (cell) {
-    cell.state = selectedType.value;
+    playfield.value[index!] = { ...cell, state: selectedType.value };
   }
 }
 
