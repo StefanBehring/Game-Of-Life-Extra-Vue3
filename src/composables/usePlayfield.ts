@@ -17,14 +17,15 @@ export function usePlayfield() {
   const intervalId = ref<ReturnType<typeof setInterval> | null>(null);
 
   function autoRun() {
-    isAutoRunning.value = !isAutoRunning.value;
     if (intervalId.value) {
       clearInterval(intervalId.value);
       intervalId.value = null;
-    } else if (isAutoRunning.value && !intervalId.value) {
+      isAutoRunning.value = false;
+    } else {
       intervalId.value = setInterval(() => {
         nextGeneration();
-      }, 1000);
+      }, 500);
+      isAutoRunning.value = true;
     }
   }
 
