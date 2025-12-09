@@ -53,6 +53,7 @@ const {
   width,
   height,
   generation,
+  getIndex,
   createPlayfield,
   nextGeneration,
   autoRun,
@@ -62,9 +63,9 @@ const {
 const selectedType = ref<CellState>("empty");
 
 function changeCellState(xPos: number, yPos: number) {
-  const cell = playfield.value.find(
-    (cell) => cell.x === xPos && cell.y === yPos
-  );
+  const index = getIndex(xPos, yPos);
+  if (index === null) return;
+  const cell = playfield.value[index];
   if (cell) {
     cell.state = selectedType.value;
   }

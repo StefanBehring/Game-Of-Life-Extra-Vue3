@@ -3,6 +3,11 @@ import type { Cell, CellAliveState, CellState } from "@/types/Cell";
 import type { Playfield } from "@/types/Playfield";
 
 export function usePlayfield() {
+  const boundaries = {
+    min: 1,
+    max: 20,
+  };
+
   const isAutoRunning = ref(false);
   const playfield = ref<Playfield>([]);
   const aliveStates: readonly CellAliveState[] = ["alive", "water"];
@@ -32,7 +37,10 @@ export function usePlayfield() {
           y,
           state: "empty",
         };
-        newPlayfield[getIndex(x, y)] = newCell;
+        const index = getIndex(x, y);
+        if (index !== null) {
+          newPlayfield[index] = newCell;
+        }
       }
     }
     playfield.value = newPlayfield;
@@ -47,7 +55,9 @@ export function usePlayfield() {
     for (let i = -1; i <= 1; i++) {
       for (let j = -1; j <= 1; j++) {
         if (i === 0 && j === 0) continue;
-        const neighbor = playfield.value[getIndex(x + i, y + j)];
+        const index = getIndex(x + i, y + j);
+        if (index === null) continue;
+        const neighbor = playfield.value[index];
         if (neighbor) {
           neighbors.push(neighbor);
         }
@@ -58,6 +68,9 @@ export function usePlayfield() {
   }
 
   function getIndex(x: number, y: number) {
+    if (x < 0 || x >= width.value || y < 0 || y >= height.value) {
+      return null;
+    }
     return y * width.value + x;
   }
 
@@ -84,16 +97,16 @@ export function usePlayfield() {
   }
 
   function nextGeneration() {
-    const newPlayfield: Playfield = [];
+    const newPlayfield: Playfield = new Array(width.value * height.value);
     for (let x = 0; x < width.value; x++) {
       for (let y = 0; y < height.value; y++) {
-        const currentCell = playfield.value.find(
-          (cell) => cell.x === x && cell.y === y
-        );
+        const index = getIndex(x, y);
+        if (index === null) continue;
+        const currentCell = playfield.value[index];
         if (!currentCell) continue;
         const neighbors = getCellNeighbors(currentCell);
         const newCellState = getNewCellState(currentCell, neighbors);
-        newPlayfield[getIndex(x, y)] = { ...currentCell, state: newCellState };
+        newPlayfield[index] = { ...currentCell, state: newCellState };
       }
     }
     playfield.value = newPlayfield;
@@ -106,7 +119,21 @@ export function usePlayfield() {
     createPlayfield();
   }
 
-  watch([height, width], resetPlayfield);
+  watch(
+    [height, width],
+    () => {
+      height.value = Math.max(
+        boundaries.min,
+        Math.min(height.value, boundaries.max)
+      );
+      width.value = Math.max(
+        boundaries.min,
+        Math.min(width.value, boundaries.max)
+      );
+      resetPlayfield();
+    },
+    { immediate: true }
+  );
 
   onUnmounted(() => {
     if (intervalId.value) {
@@ -121,6 +148,7 @@ export function usePlayfield() {
     height,
     generation,
     autoRun,
+    getIndex,
     createPlayfield,
     nextGeneration,
     resetPlayfield,
